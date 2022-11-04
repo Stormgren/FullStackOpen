@@ -6,10 +6,18 @@ const Header = (props) => {
   )
 }
 
+const Part = (props) => {
+  return (
+    <>
+      <p>{props.part} {props.exercise}</p>
+    </>
+  )
+}
+
 const Content = (props) => {
   return(
     <>
-      <p>{props.part} {props.exercise}</p>
+      <Part part={props.part} exercise={props.exercise}></Part>
     </>
   )
 }
@@ -22,7 +30,6 @@ const Total = (props) => {
   )
 
 }
-
 
 const App = () => {
   const course = 'Half Stack application development'
