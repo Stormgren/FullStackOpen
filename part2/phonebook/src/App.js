@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import personService from './services/personService';
 import Persons from './components/Persons';
 import PersonsForm from './components/PersonsForm';
 import SearchBar from './components/SearchBar';
@@ -11,33 +11,49 @@ const App = () => {
   const [searchName, setSearchName] = useState('')
 
   useEffect(()=>{
-    axios.get("http://localhost:3001/persons").then((res) => {
-      setPersons(res.data);
-      console.log(res.data)
+   personService.getAll().then(personsData => {
+      setPersons(personsData);
     })
-
   }, [])
+
   const addPerson = (event) => {
     event.preventDefault();
+
     const newPerson = {
       name: newName,
       number: newNumber
     }
 
-    const duplicate = persons.find(p => JSON.stringify(p.name) === JSON.stringify(newPerson.name));
-   
-    if(!duplicate){
-      setPersons(persons.concat(newPerson));
-      
+    const duplicate = persons.find(p =>  p.name.toLowerCase() === newPerson.name.toLowerCase());
+
+    if(duplicate){
+      const changeNumber = window.confirm(`Person ${newName} is already in the phonebook, do you want to change the number?`)
+
+      if(changeNumber){
+        const newNum = { ...duplicate, number: newNumber}
+        personService.update(duplicate.id, newNum)
+        .then(obj => {
+        setPersons(persons.map(p => p.id !== duplicate.id ? p : obj))
+        alert(`Updated ${duplicate.name}s number`)
+        })
+      } 
     } else {
-      alert(`${newPerson.name} is already added to the phonebook`)
-     
+      personService.create(newPerson).then(res => setPersons(persons.concat(res)));
     }
 
     setNewName('')
-      setNewNumber('')
+    setNewNumber('')
   }
 
+  const handleDelete = (id) => {
+    const person = persons.find(p => p.id === id)
+    const delMsg = window.confirm(`Do you want to delete ${person.name}`)
+    if(delMsg){
+      personService.remove(id).then(removedPerson => setPersons(persons.filter(p => p.id !== id)))
+      .catch(err => alert(err))
+    }
+  }
+ 
   const handleNames = (event) => {
     event.preventDefault();
     setNewName(event.target.value);
@@ -65,9 +81,8 @@ const App = () => {
       addPerson={addPerson} 
       handleNames={handleNames} 
       handleNumbers={handleNumbers}></PersonsForm>
-      
       <h2>Contacts</h2>
-      {searchFilter.map((p) => <Persons person={p}></Persons>)}  
+      {searchFilter.map((p) => <Persons person={p} handleDelete={handleDelete} key={p.name}></Persons> )}  
     </div>
   )
 }
