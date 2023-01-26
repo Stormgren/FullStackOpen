@@ -3,12 +3,16 @@ import personService from './services/personService';
 import Persons from './components/Persons';
 import PersonsForm from './components/PersonsForm';
 import SearchBar from './components/SearchBar';
+import Notification from './components/Notification';
+import './App.css';
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchName, setSearchName] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [errorMsg, setErrorMsg] = useState(null)
 
   useEffect(()=>{
    personService.getAll().then(personsData => {
@@ -34,11 +38,36 @@ const App = () => {
         personService.update(duplicate.id, newNum)
         .then(obj => {
         setPersons(persons.map(p => p.id !== duplicate.id ? p : obj))
-        alert(`Updated ${duplicate.name}s number`)
-        })
-      } 
+        
+        setNotification(`Number for ${obj.name} has been updated`);
+        setTimeout(() => {
+        setNotification(null);
+        }, 5000);
+      }).catch((error) => {
+        setErrorMsg(
+        `Information for ${duplicate.name} has already been removed from server`
+        );
+        setPersons(persons.filter((p) => p.id !== duplicate.id));
+        setTimeout(() => {
+        setErrorMsg(null);
+        }, 5000);
+      });
+    }
+      
     } else {
-      personService.create(newPerson).then(res => setPersons(persons.concat(res)));
+      personService.create(newPerson).then(res => {
+        setPersons(persons.concat(res))
+        setNotification(`${newPerson.name} has been added to contact list`)
+        setTimeout(() => {
+          setNotification(null);
+        }, 5000);
+    })
+      .catch((error) => {
+        setErrorMsg(error.response.data);
+        setTimeout(() => {
+          setErrorMsg(null);
+        }, 5000);
+      });;
     }
 
     setNewName('')
@@ -49,7 +78,13 @@ const App = () => {
     const person = persons.find(p => p.id === id)
     const delMsg = window.confirm(`Do you want to delete ${person.name}`)
     if(delMsg){
-      personService.remove(id).then(removedPerson => setPersons(persons.filter(p => p.id !== id)))
+      personService.remove(id).then(removedPerson => {
+        setPersons(persons.filter(p => p.id !== id))
+        setErrorMsg(`Contact ${person.name} has been removed`)
+        setTimeout(() => {
+          setErrorMsg(null);
+        }, 5000);
+      })
       .catch(err => alert(err))
     }
   }
@@ -76,11 +111,17 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <SearchBar handleSearch={handleSearch}></SearchBar>
+      <br/>
+      <Notification
+        msg={ notification || errorMsg }
+        className={`${notification ? "notification" : "error"}`}
+      />
+      <h3>Add contact:</h3>
       <PersonsForm 
       addPerson={addPerson} 
       handleNames={handleNames} 
       handleNumbers={handleNumbers}></PersonsForm>
+      <SearchBar handleSearch={handleSearch} />
       <h2>Contacts</h2>
       {searchFilter.map((p) => <Persons person={p} handleDelete={handleDelete} key={p.name}></Persons> )}  
     </div>

@@ -1,20 +1,29 @@
 
 const PersonsForm = ({ addPerson, handleNames, handleNumbers }) => {
-  
+
+  const inputStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+    }
+
+    const btnStyle = {
+      margin: '10px'
+    }
     return (
         <form onSubmit={addPerson}>
-        <div>
+        <div style={inputStyle}>
           name: <input
-        //   value={newName}
           onChange={handleNames}
         />
-         <div>number: <input 
-        //  value={newNumber}
+         <div style={inputStyle}>
+          number: <input 
           onChange={handleNumbers}
           /></div>
         </div>
         <div>
-          <button type="submit">add</button>
+          <button style={btnStyle} type="submit">add</button>
         </div>
       </form>
     )

@@ -1,6 +1,9 @@
 const SearchBar = ({ handleSearch }) => {
+  const formStyle = {
+    margin: '10px',
+  }
     return (
-        <form>
+        <form style={formStyle}>
         <div>Search: 
         <input 
           
