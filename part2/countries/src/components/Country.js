@@ -2,11 +2,14 @@ import axios from "axios"
 import { useState, useEffect } from "react"
 
 const Country = ({ details }) => {
-    // const [details, setDetails] = useState(name)
-    // useEffect(() => {
-    //   axios.get(`https://restcountries.com/v3.1/name/${name}`)
-    //   .then(res => setDetails(res.data))
-    // }, [name])
+
+    const [weather, setWeather] = useState(false)
+
+    useEffect(() => {
+        const api_key = process.env.REACT_APP_API_KEY
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${details.capital[0].toLowerCase()}&appid=${api_key}&&units=metric`
+        axios.get(url).then(res => setWeather(res.data))
+    }, [details])
     
     return(
         <div>
@@ -18,12 +21,21 @@ const Country = ({ details }) => {
             <ul>
             {Object.keys(details.languages).map((value, index) => {
             return (
-            <li>{value}</li>
+            <li key={value}>{value}</li>
             )}
             )}
             </ul>
             <img src={details.flags.png} alt={details.flags.alt} />
-        </div>
+            <h3>Weather in {details.capital[0]}</h3>         
+           {weather &&    
+           <>
+           <h3>Temperature: {weather.main.temp} celsius</h3>
+            <img src={`http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`} alt={weather.weather[0].main}/>
+            <p>{weather.weather[0].main}</p>
+            <h3>Wind: {weather.wind.speed} m/s</h3> 
+            </>
+            }
+        </div>    
     )
 }
 

@@ -1,60 +1,49 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import Country from './components/Country';
-import './App.css';
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import Country from './components/Country'
 
-function App() {
-const [countries, setCountries] = useState([]);
-const [countryFilter, setCountryFilter] = useState([])
-const [country, setCountry] = useState(null)
-let data;
+const App = () => {
 
-useEffect(() => {
-  console.log('use effect')
-   axios.get(`https://restcountries.com/v3.1/all`, {headers: {
-     "Access-Control-Allow-Origin": "*"
-   }}).then(res => {
-   setCountries(res.data)
-   })
-}, [])
-
-
-const countryHandler = (e) => {
-  const searchFilter = countries.filter(c => c.name.common.toLowerCase().includes(e.target.value.toLowerCase()))
-  console.log(searchFilter)
+  const [countries, setCountries] = useState([])
+  const [search, setSearch] = useState('')
+  const [country, setCountry] = useState([])
   
+  useEffect(() => {
+    axios.get('https://restcountries.com/v3.1/all')
+      .then(response => setCountries(response.data))
+  }, [])
 
-  if(searchFilter.length === 1){
-    setCountry(searchFilter[0])
+  const handleSearch = (e) => {
+    const countrySearch = countries.filter(c => c.name.common.toLowerCase().includes(e.target.value.toLowerCase()))
+    const countryInfo = countrySearch.filter(c => c.name.common === e.target.value)
+
+    if (countryInfo.length === 1) {
+      setSearch(country[0].name.common)
+      setCountry(countryInfo)
+    }
+    
+    setSearch(e.target.value)
+    setCountry(countrySearch)
   }
-    setCountryFilter(searchFilter)
+
   
-}
-
-const searchHandler = (e) => {
-  e.preventDefault()
-}
-
-if(countryFilter.length > 10){
-  data = <h1>Too many matches, specify another filter</h1>
-} else if (countryFilter.length > 1){ 
-  data = countryFilter.map(c => <h1>{c.name.common}</h1>)
-} else if(countryFilter.length === 1) {
-  data = <Country details={countryFilter[0]}/> 
-  } else {
-  data = null;
-}
-
-
   return (
-    <div className="App">
-    <h1>Countries</h1>
-    <form onSubmit={searchHandler}>
-    <input type="text" onChange={countryHandler}/>
-    </form>
-      {data}
-    </div>
-  );
+    <>
+    <input value={search} onChange={handleSearch}/>
+      {country.length > 10
+      ? <h1>Too many matches, please specify</h1>
+      : country.length !== 1
+        ? <>{country.map(c => {
+                return (
+                  <h3 key={c.name.common}>
+                    {c.name.common}<button value={c.name.common} onClick={handleSearch}>Show</button>
+                  </h3>
+                )
+              })}
+            </>
+        : <Country details={country[0]}/>}
+    </>
+  )
 }
 
-export default App;
+export default App
