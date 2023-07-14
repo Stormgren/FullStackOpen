@@ -1,6 +1,9 @@
+require('dotenv').config();
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
+
 const app = express()
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
@@ -16,28 +19,7 @@ morgan.token('content', function (req){
     }
 })
 
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
+const Person = require('./model/person')
 
 app.get('/', (req, res) => {
     res.send('<h1>Phonebook project</h1>')
@@ -50,32 +32,37 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(persons => {
+        res.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
-    const person = persons.find(p => p.id === id);
+   /* const person = persons.find(p => p.id === id);
     if(persons){
         res.json(person)
     } else {
         res.status(404).end()
-    }
+    }*/
+   Person.findById(req.params.id).then(person => {
+       res.json(person);
+   })
 })
-
+/*
 const generateId = () => {
     const maxId = persons.length > 0 ? Math.max(...persons.map(p => p.id)) : 0
     return maxId + 1
 }
-
+*/
 app.post('/api/persons', (req, res) => {
     const body = req.body
     const personName = body.name;
     const personNumber = body.number;
 
-    const duplicateName = persons.find(p => p.name.toLowerCase() === personName.toLowerCase())
+   // const duplicateName = persons.find(p => p.name.toLowerCase() === personName.toLowerCase())
 
-
+/*
     if (!personName || !personNumber){
         return res.status(400).json({
             error: 'Missing information'
@@ -85,16 +72,17 @@ app.post('/api/persons', (req, res) => {
             error: 'Name must be unique'
         })
     }
+*/
+    const person = new Person({
+        name: personName,
+        number: personNumber
+    });
+    //persons = persons.concat(person)
 
-    const person = {
-        "id": generateId(),
-        "name": personName,
-        "number": personNumber
-    }
+    person.save().then(savedPerson => {
+      res.json(savedPerson)
+    })
 
-    persons = persons.concat(person)
-
-    res.json(person)
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -109,7 +97,7 @@ const unknownEndpoint = (req,res) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
