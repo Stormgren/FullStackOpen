@@ -27,6 +27,17 @@ morgan.token('content', function (req){
     }
 })
 
+/*
+const errorHandler = (error, req, res, next) => {
+    if(error.name === "CastError"){
+        return res.status(400).send({ error: "malformatted id"})
+    } else if (error.name === "ValidationError"){
+        return res.status(400).json({error: error.message})
+    }
+
+    next(error)
+}
+*/
 const Person = require('./model/person')
 
 app.get('/', (req, res) => {
@@ -63,14 +74,24 @@ app.post('/api/persons', (req, res, next) => {
     const personName = body.name;
     const personNumber = body.number;
 
+    if (!personName) {
+        return res.status(400).json({
+            error: 'name is missing'
+        })
+    } else if (!personNumber){
+        return res.status(400).json({
+            error: 'number is missing'
+        })
+    }
+
     const person = new Person({
-        name: personName,
-        number: personNumber
-    });
+        name: body.name,
+        number: body.number
+    })
 
     person.save().then(savedPerson => {
-      res.json(savedPerson).catch(error => next(error))
-    })
+        res.json(savedPerson)
+    }).catch(error => next(error))
 
 })
 
@@ -103,6 +124,8 @@ app.use(unknownEndpoint)
 const errorHandler = (error, req, res, next) => {
     if(error.name === "CastError"){
         return res.status(400).send({ error: "malformatted id"})
+    } else if (error.name === "ValidationError"){
+        return res.status(400).json({error: error.message})
     }
 
     next(error)
@@ -115,4 +138,3 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
-
