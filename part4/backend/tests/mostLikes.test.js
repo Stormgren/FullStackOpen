@@ -1,7 +1,17 @@
 const listHelper = require('../utils/list_helper')
 
-describe('Authors with most blogs', () => {
+describe('Author with most likes', ()=> {
     const noBlogs = []
+    const oneBlog = [
+        {
+            _id: "5a422a851b54a676234d17f7",
+            title: "React patterns",
+            author: "Michael Chan",
+            url: "https://reactpatterns.com/",
+            likes: 7,
+            __v: 0
+          }
+    ]
     const blogs = [
         {
           _id: "5a422a851b54a676234d17f7",
@@ -52,10 +62,21 @@ describe('Authors with most blogs', () => {
           __v: 0
         }  
       ]
+
       test('if blog list is empty', () => {
         expect(listHelper.totalLikes(noBlogs)).toBe(0)
     })
-      test('Author who has written most blogs is', () => {
-        expect(listHelper.mostBlogs(blogs)).toBe('Robert C. Martin')
+    
+        test('Author that has most likes if there is only one blog',() => {
+            expect(listHelper.mostLikes(oneBlog)).toEqual({
+                author: "Michael Chan",
+                likes: 7
+            })
+        })
+      test('Author that has most likes on his posts', () => {
+        expect(listHelper.mostLikes(blogs)).toEqual({
+            author: "Edsger W. Dijkstra",
+            likes:17
+        })
       })
 })
