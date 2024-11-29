@@ -9,7 +9,8 @@ const helper = require('./test_helper');
 beforeEach(async () => {
     await Blog.deleteMany({})
 
-    await Blog.insertMany(helper.initialBlogs)
+  //  await Blog.insertMany(helper.initialBlogs)
+
 })
 
 const api = supertest(app);
@@ -67,4 +68,25 @@ test('Default number of likes is set to 0', async () => {
     const res = await helper.blogsInDb();
     expect(res).toHaveLength(helper.initialBlogs.length + 1);
     expect(res[res.length - 1].likes).toBe(0);
+})
+
+test('If title or author are missing return error 400', async () => {
+    const noTitle = {
+        author: 'Joe',
+        url: 'https://newblog.com',
+        likes: 5
+    }
+
+    const noAuthor = {
+        title: 'This one has no author',
+        url:'http://newblog.com',
+        likes: 2
+    }
+
+
+   await api.post('/api/blogs').send(noTitle).expect(400)
+
+    await api.post('/api/blogs').send(noAuthor).expect(400)
+
+
 })
