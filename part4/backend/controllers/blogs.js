@@ -28,4 +28,9 @@ const blog = new Blog({
 
   })
 
+blogsRouter.delete('/:id', async (req, res) => {
+     await Blog.findByIdAndRemove(req.params.id);
+    return res.status(204).end();
+
+})
   module.exports = blogsRouter

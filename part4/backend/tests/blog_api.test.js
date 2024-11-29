@@ -3,6 +3,7 @@ const supertest = require('supertest')
 const Blog = require('../model/blog');
 const app = require('../app');
 const helper = require('./test_helper');
+const {blogsInDb} = require("./test_helper");
 
 
 
@@ -87,6 +88,15 @@ test('If title or author are missing return error 400', async () => {
    await api.post('/api/blogs').send(noTitle).expect(400)
 
     await api.post('/api/blogs').send(noAuthor).expect(400)
+
+
+})
+
+test('Deleting a blog post', async () => {
+    const blogs = await blogsInDb();
+    const blogToDelete = blogs[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
 
 
 })
