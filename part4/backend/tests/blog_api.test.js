@@ -51,3 +51,20 @@ test('Created a new blog post', async () => {
     const authors = res.map(b => b.author);
     expect(authors).toContain('John Doe')
 })
+
+test('Default number of likes is set to 0', async () => {
+    const newBlog = {
+        title: 'New blog entry',
+        author: 'Kenny',
+        url: 'https://newblog.com'
+    }
+
+    await api.post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/ )
+
+    const res = await helper.blogsInDb();
+    expect(res).toHaveLength(helper.initialBlogs.length + 1);
+    expect(res[res.length - 1].likes).toBe(0);
+})
