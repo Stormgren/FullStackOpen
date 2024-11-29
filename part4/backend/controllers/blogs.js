@@ -17,13 +17,13 @@ const blog = new Blog({
     url: body.url,
     likes: body.likes
 })
-    
-    if (!body.title || !body.author) {
-        return response.status(400).json({ error: 'Title and author are required.' });
-    }
 
+   if(!blog.title || !blog.author){
+       return response.status(400).json('Blog must have title and author!')
+   }
         const savedBlog = await blog.save()
                response.status(201).json(savedBlog)
+
 
 
   })

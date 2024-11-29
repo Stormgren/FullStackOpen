@@ -9,7 +9,7 @@ const helper = require('./test_helper');
 beforeEach(async () => {
     await Blog.deleteMany({})
 
-  //  await Blog.insertMany(helper.initialBlogs)
+   await Blog.insertMany(helper.initialBlogs)
 
 })
 
