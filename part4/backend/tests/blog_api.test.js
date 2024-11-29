@@ -98,5 +98,25 @@ test('Deleting a blog post', async () => {
 
     await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
 
+})
 
+test('Updating a blog post', async () => {
+    const newBlog = {
+        title: "This is a new blog",
+        author: "John Doe",
+        url: "https://newblog.com",
+        likes: 10
+    }
+
+    const updateBlog = await api.post('/api/blogs').send(newBlog)
+
+    const updateLikes = updateBlog.body.likes + 1;
+
+    const newLikes = {
+        likes: updateLikes
+    }
+
+    await api.put(`/api/blogs/${updateBlog.body.id}`).send(newLikes).expect(200)
+    const blogs = await helper.blogsInDb();
+    expect(blogs[blogs.length - 1].likes).toBe(11)
 })
