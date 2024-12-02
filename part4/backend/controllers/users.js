@@ -6,9 +6,6 @@ const User = require('../model/user');
 userRouter.post('/', async(req, res) => {
     const {username, name, passwordHash} = req.body;
 
-    const saltRounds = 10;
-    const password = await bcrypt.hash(passwordHash, saltRounds);
-
     if(passwordHash === undefined){
         return res.status(400).json({error: "Password is required"})
     }
@@ -24,6 +21,10 @@ userRouter.post('/', async(req, res) => {
     if(username.length < 3) {
         return res.status(400).json({error: 'Username must be at least 3 characters long'});
     }
+
+    const saltRounds = 10;
+    const password = await bcrypt.hash(passwordHash, saltRounds);
+
 
     const user = new User({
         username,
