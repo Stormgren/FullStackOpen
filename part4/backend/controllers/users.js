@@ -5,7 +5,7 @@ const User = require('../model/user');
 
 userRouter.post('/', async(req, res) => {
     const {username, name, passwordHash} = req.body;
-    console.log(passwordHash)
+
     if(passwordHash === undefined){
         return res.status(400).json({error: "Password is required"})
     }
@@ -31,7 +31,7 @@ userRouter.post('/', async(req, res) => {
         name,
         passwordHash: password
     })
-    console.log(user)
+
     const savedUser = await user.save();
 
     res.status(201).json(savedUser);

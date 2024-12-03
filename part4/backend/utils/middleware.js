@@ -16,14 +16,14 @@ const tokenExtractor = (req, res, next) => {
     if (authorization && authorization.startsWith('Bearer ')){
         req.token = authorization.replace('Bearer ', '')
     }
-    console.log(authorization)
+
     next();
 }
 
 const userExtractor = async (req, res, next) => {
 
     const decodedToken = jwt.verify(req.token, process.env.SECRET)
-    console.log('Token ' + decodedToken +  ' Non decoded ' +  req.token);
+
     if (!decodedToken.id) {
         return res.status(401).json({ error: 'Token invalid' })
     }

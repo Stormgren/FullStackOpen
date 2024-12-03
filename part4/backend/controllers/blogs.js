@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const Blog = require('../model/blog')
 const User = require('../model/user')
 const {blogsInDb} = require("../tests/test_helper");
-const {tokenExtractor, userExtractor} = require("../utils/middleware");
+const { userExtractor} = require("../utils/middleware");
 const middleware = require("../utils/middleware");
 
 blogsRouter.get("/", async (req, res) => {
@@ -44,6 +44,10 @@ blogsRouter.delete('/:id', userExtractor,async (req, res) => {
     const blog = await Blog.findById(req.params.id);
 
     const user = req.user;
+
+    if (!blog) {
+        return res.status(404).json({ error: 'Blog not found' });
+    }
 
     if(blog.user.toString() === user._id.toString()){
         await Blog.findByIdAndRemove(req.params.id);
