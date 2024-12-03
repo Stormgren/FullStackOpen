@@ -1,4 +1,5 @@
 const logger = require('./logger')
+const {request} = require("express");
 
 const requestLogger = (req, res, next) => {
     logger.info("Method", req.method)
@@ -6,6 +7,15 @@ const requestLogger = (req, res, next) => {
     logger.info("Body", req.body)
     logger.info("---")
     next()
+}
+
+const tokenExtractor = (req, res, next) => {
+    const authorization = req.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')){
+       req.token = authorization.replace('Bearer ', '')
+    }
+
+    next();
 }
 
 const unknownEndpoint = (req, res) => {
@@ -22,7 +32,7 @@ const errorHandler = (error, req, res, next) => {
     } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')){
         return res.status(400).json({error: 'expected `username` to be unique'});
     } else if (error.name === 'JsonWebTokenError'){
-        return res.status(401).join({error: 'Invalid token'})
+        return res.status(401).json({error: 'Invalid token'})
     }
     
     next(error)
@@ -30,6 +40,7 @@ const errorHandler = (error, req, res, next) => {
 
 module.exports = {
     requestLogger,
+    tokenExtractor,
     unknownEndpoint,
     errorHandler
 }
