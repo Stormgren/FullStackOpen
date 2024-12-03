@@ -4,20 +4,15 @@ const Blog = require('../model/blog')
 const User = require('../model/user')
 const {blogsInDb} = require("../tests/test_helper");
 
-const getTokenFrom = req => {
-    const authorization = req.get('authorization')
-    if (authorization && authorization.startsWith('Bearer ')){
-        return authorization.replace('Bearer ', '')
-    }
-    return null;
-}
-
 blogsRouter.get("/", async (req, res) => {
     const blogs = await Blog.find({}).populate('user', {username: 1, name: 1})
         res.json(blogs)
 })
 
-
+blogsRouter.get('/:id', async (req, res) => {
+    const blog = await Blog.findById(req.params.id);
+    res.json(blog);
+})
 blogsRouter.post('/', async (request, response) => {
     const body = request.body
 
@@ -49,8 +44,17 @@ const blog = new Blog({
   })
 
 blogsRouter.delete('/:id', async (req, res) => {
-     await Blog.findByIdAndRemove(req.params.id);
-    return res.status(204).end();
+
+    const blog = await Blog.findById(req.params.id);
+
+    const user = await User.findById(blog.user)
+
+    if(blog.user.toString() === user._id.toString()){
+        await Blog.findByIdAndRemove(req.params.id);
+        return res.status(204).end();
+    } else {
+        return res.status(401).json({error: 'Invalid token'})
+    }
 
 })
 
