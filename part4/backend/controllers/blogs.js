@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken')
 const Blog = require('../model/blog')
 const User = require('../model/user')
 const {blogsInDb} = require("../tests/test_helper");
+const {tokenExtractor, userExtractor} = require("../utils/middleware");
+const middleware = require("../utils/middleware");
 
 blogsRouter.get("/", async (req, res) => {
     const blogs = await Blog.find({}).populate('user', {username: 1, name: 1})
@@ -13,15 +15,10 @@ blogsRouter.get('/:id', async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     res.json(blog);
 })
-blogsRouter.post('/', async (request, response) => {
+
+blogsRouter.post('/', middleware.userExtractor , async (request, response) => {
     const body = request.body
-
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!request.token || !decodedToken.id){
-        return response.status(401).json({error: 'Invalid token'})
-    }
-
-    const user = await User.findById(decodedToken.id);
+    const user = request.user
 
 const blog = new Blog({
     title: body.title,
@@ -35,7 +32,6 @@ const blog = new Blog({
        return response.status(400).json('Blog must have title and author!')
    }
 
-
    const savedBlog = await blog.save()
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save();
@@ -43,11 +39,11 @@ const blog = new Blog({
 
   })
 
-blogsRouter.delete('/:id', async (req, res) => {
+blogsRouter.delete('/:id', userExtractor,async (req, res) => {
 
     const blog = await Blog.findById(req.params.id);
 
-    const user = await User.findById(blog.user)
+    const user = req.user;
 
     if(blog.user.toString() === user._id.toString()){
         await Blog.findByIdAndRemove(req.params.id);
