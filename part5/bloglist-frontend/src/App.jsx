@@ -29,16 +29,17 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
+
     } catch (error) {
       setErrorMessage('Wrong Credentials');
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000)
     }
-    console.log('Logging in with: ', username, password)
+
   }
 
-  const loginForm = () => {
+  const loginForm = () => (
       <form onSubmit={handleLogin}>
           Username: <input type="text" value={username} name="Username"
                            onChange={({target}) => setUsername(target.value)}/>
@@ -48,32 +49,27 @@ const App = () => {
           <br/>
           <button type="submit">Log in</button>
       </form>
-  }
+  )
 
-    /*<div>
+    const blogsList = () => (
+        <div>
+            <h2>Blogs</h2>
+            <h1>Logged in as {user.name}</h1>
+            {blogs.map(blog => (
+                <Blog key={blog.id} blog={blog}/>
+            ))}
+        </div>
+    )
+
+    return (
+        <div>
+            {errorMessage}
+        {user === null ? (loginForm()) : (
+
+          blogsList()
+          )}
 
 
-        <h2>blogs</h2>
-        {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog}/>
-        )}
-    </div>*/
-
-
-  return (
-      <div>
-          {user === null && loginForm()}
-          {user !== null && <p>{user.name} logged in</p>}
-
-          <form onSubmit={handleLogin}>
-              Username: <input type="text" value={username} name="Username"
-                               onChange={({target}) => setUsername(target.value)}/>
-              <br/>
-              Password: <input type="password" value={password} name="Password"
-                               onChange={({target}) => setPassword(target.value)}/>
-              <br/>
-              <button type="submit">Log in</button>
-          </form>
       </div>
   )
 }
