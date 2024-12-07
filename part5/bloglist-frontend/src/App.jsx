@@ -14,7 +14,7 @@ const App = () => {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [url, setUrl] = useState("");
-
+const [message, setMessage] = useState(null)
   useEffect(() => {
     blogService.getAll().then(blogs =>
         setBlogs( blogs )
@@ -76,6 +76,8 @@ const App = () => {
             author,
             url
         }
+        try {
+
 
             blogService.create(blogObject).then(newBlog => {
                     setBlogs(blogs.concat(newBlog))
@@ -84,8 +86,17 @@ const App = () => {
                     setUrl('')
                 }
             )
-       
-    }
+        } catch(e) {
+            setErrorMessage(e)
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 5000)
+        }
+        setMessage(`${title} by ${author} has been added to the blog list`)
+        setTimeout(() => {
+            setMessage(null);
+        }, 5000)
+  }
 
     const addNewBlog = () => (
         <form onSubmit={createNewBlog}>
@@ -117,6 +128,7 @@ const App = () => {
     return (
         <div>
             {errorMessage}
+            {message}
             {user === null ? (
                 loginForm()) : (
 
