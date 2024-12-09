@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import login from './services/Login'
 import blog from "./components/Blog";
 import axios from "axios";
+import BlogForm from "./components/BlogForm.jsx";
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -68,57 +69,13 @@ const [message, setMessage] = useState(null)
        window.localStorage.removeItem('loggedUser')
         setUser(null)
     }
-    const createNewBlog = async (e) => {
-        e.preventDefault();
-
-        const blogObject = {
-            title,
-            author,
-            url
-        }
-        try {
-
-
-            blogService.create(blogObject).then(newBlog => {
-                    setBlogs(blogs.concat(newBlog))
-                    setTitle('')
-                    setAuthor('')
-                    setUrl('')
-                }
-            )
-        } catch(e) {
-            setErrorMessage(e)
-            setTimeout(() => {
-                setErrorMessage(null);
-            }, 5000)
-        }
-        setMessage(`${title} by ${author} has been added to the blog list`)
-        setTimeout(() => {
-            setMessage(null);
-        }, 5000)
-  }
-
-    const addNewBlog = () => (
-        <form onSubmit={createNewBlog}>
-            Title: <input type="text" value={title} name="Title"
-                          onChange={({target}) => setTitle(target.value)}/>
-            <br/>
-            Author: <input type="text" value={author} name="Author"
-                           onChange={({target}) => setAuthor(target.value)}/>
-            <br/>
-            Url: <input type="text" value={url} name="Url"
-                        onChange={({target}) => setUrl(target.value)}/>
-            <br/>
-            <button type="submit">Add new Blog</button>
-        </form>
-    )
-
+  
     const blogsList = () => (
         <div>
             <h2>Blogs</h2>
             <h1>Logged in as {user.name}</h1>
             <button onClick={() => logoutHandler()}>Log out</button>
-            {addNewBlog()}
+            <BlogForm blogs={blogs} setBlogs={setBlogs} setMessage={setMessage}  />
             {blogs.map(blog => (
                 <Blog key={blog.id} blog={blog}/>
             ))}
