@@ -5,6 +5,7 @@ import login from './services/Login'
 import blog from "./components/Blog";
 import axios from "axios";
 import BlogForm from "./components/BlogForm.jsx";
+import Togglable from "./components/Togglable.jsx";
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -69,13 +70,15 @@ const [message, setMessage] = useState(null)
        window.localStorage.removeItem('loggedUser')
         setUser(null)
     }
-  
+
     const blogsList = () => (
         <div>
             <h2>Blogs</h2>
             <h1>Logged in as {user.name}</h1>
             <button onClick={() => logoutHandler()}>Log out</button>
+            <Togglable buttonLabel='Add New Blog' >
             <BlogForm blogs={blogs} setBlogs={setBlogs} setMessage={setMessage}  />
+            </Togglable>
             {blogs.map(blog => (
                 <Blog key={blog.id} blog={blog}/>
             ))}
